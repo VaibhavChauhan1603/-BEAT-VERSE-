@@ -1,4 +1,3 @@
-
 {
   "name": "beat-verse-music-app",
   "private": true,
@@ -14,6 +13,7 @@
   "dependencies": {
     "@capacitor/android": "^7.4.3",
     "@capacitor/core": "^7.4.3",
+    "@supabase/supabase-js": "^2.57.4",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
