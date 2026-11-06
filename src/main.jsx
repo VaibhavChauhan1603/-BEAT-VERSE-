@@ -2,6 +2,7 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {Home, Search, Library, Heart, Plus, Music2, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, MoreHorizontal, Upload, ListMusic, Headphones, Disc3, Clock3, Download, SlidersHorizontal, Mic2, Import, X, Check, Volume2, Menu, Sparkles, ChevronRight} from 'lucide-react';
 import './style.css';
+import { startSpotifyLogin, finishSpotifyLogin, importSpotifyPlaylist } from './spotify.js';
 
 const starter = [
  {id:'s1',title:'Midnight City',artist:'M83',album:'Hurry Up, We’re Dreaming',duration:'4:03',color:'violet',url:'',cover:'🌃'},
