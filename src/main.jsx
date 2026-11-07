@@ -14,7 +14,8 @@ const starter = [
 ];
 const read=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
 function App(){
- const [tracks,setTracks]=useState(()=>read('bv_tracks',starter)); const [likes,setLikes]=useState(()=>read('bv_likes',[])); const [playlists,setPlaylists]=useState(()=>read('bv_playlists',[{id:'p1',name:'Late Night Vibes',tracks:['s1','s3','s6']},{id:'p2',name:'Good Energy',tracks:['s2','s4','s5']} ]));
+const [tracks,setTracks]=useState(()=>read('bv_tracks',starter)); const [likes,setLikes]=useState(()=>read('bv_likes',[])); const [playlists,setPlaylists]=useState(()=>read('bv_playlists',[{id:'p1',name:'Late Night Vibes',tracks:['s1','s3','s6']},{id:'p2',name:'Good Energy',tracks:['s2','s4','s5']} ]));
+ const [spotifyConnected,setSpotifyConnected]=useState(false);
  const [page,setPage]=useState('Home'); const [query,setQuery]=useState(''); const [current,setCurrent]=useState(null); const [playing,setPlaying]=useState(false); const [showImport,setShowImport]=useState(false); const [spotifyUrl,setSpotifyUrl]=useState(''); const [importMsg,setImportMsg]=useState(''); const [newName,setNewName]=useState(''); const [showCreate,setShowCreate]=useState(false); const [activePlaylist,setActivePlaylist]=useState(null); const [queue,setQueue]=useState([]); const [shuffle,setShuffle]=useState(false); const [repeat,setRepeat]=useState(false); const [volume,setVolume]=useState(75); const [tab,setTab]=useState('All'); const audio=useRef(null); const fileRef=useRef(null);
  useEffect(()=>localStorage.setItem('bv_tracks',JSON.stringify(tracks)),[tracks]); useEffect(()=>localStorage.setItem('bv_likes',JSON.stringify(likes)),[likes]); useEffect(()=>localStorage.setItem('bv_playlists',JSON.stringify(playlists)),[playlists]);
  const filtered=useMemo(()=>tracks.filter(t=>(t.title+' '+t.artist+' '+t.album).toLowerCase().includes(query.toLowerCase())),[tracks,query]);
