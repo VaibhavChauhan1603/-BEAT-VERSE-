@@ -19,6 +19,25 @@ const [tracks,setTracks]=useState(()=>read('bv_tracks',starter)); const [likes,s
  const [page,setPage]=useState('Home'); const [query,setQuery]=useState(''); const [current,setCurrent]=useState(null); const [playing,setPlaying]=useState(false); const [showImport,setShowImport]=useState(false); const [spotifyUrl,setSpotifyUrl]=useState(''); const [importMsg,setImportMsg]=useState(''); const [newName,setNewName]=useState(''); const [showCreate,setShowCreate]=useState(false); const [activePlaylist,setActivePlaylist]=useState(null); const [queue,setQueue]=useState([]); const [shuffle,setShuffle]=useState(false); const [repeat,setRepeat]=useState(false); const [volume,setVolume]=useState(75); const [tab,setTab]=useState('All'); const audio=useRef(null); const fileRef=useRef(null);
  useEffect(()=>localStorage.setItem('bv_tracks',JSON.stringify(tracks)),[tracks]); useEffect(()=>localStorage.setItem('bv_likes',JSON.stringify(likes)),[likes]); useEffect(()=>localStorage.setItem('bv_playlists',JSON.stringify(playlists)),[playlists]);
  const filtered=useMemo(()=>tracks.filter(t=>(t.title+' '+t.artist+' '+t.album).toLowerCase().includes(query.toLowerCase())),[tracks,query]);
+ useEffect(()=>{
+  const code=localStorage.getItem('bv_spotify_callback_code');
+  const state=localStorage.getItem('bv_spotify_callback_state');
+
+  if(!code||!state)return;
+
+  (async()=>{
+    try{
+      await finishSpotifyLogin(code,state);
+      setSpotifyConnected(true);
+      setImportMsg('Spotify connected successfully!');
+    }catch(error){
+      setImportMsg(error.message||'Spotify connection failed.');
+    }finally{
+      localStorage.removeItem('bv_spotify_callback_code');
+      localStorage.removeItem('bv_spotify_callback_state');
+    }
+  })();
+},[]);
  const play=(t)=>{setCurrent(t);setQueue(q=>q.length?q:[...tracks]);setPlaying(!!t.url);};
  const toggleLike=(id)=>setLikes(a=>a.includes(id)?a.filter(x=>x!==id):[...a,id]);
  const addFile=(e)=>{const files=[...e.target.files];const added=files.map((f,i)=>({id:'local-'+Date.now()+'-'+i,title:f.name.replace(/\.[^.]+$/,''),artist:'On this device',album:'Local files',duration:'—',color:['violet','orange','blue','pink'][i%4],cover:'🎵',url:URL.createObjectURL(f)}));setTracks(t=>[...added,...t]);setPage('Library');e.target.value='';};
