@@ -23,7 +23,40 @@ function App(){
  const addFile=(e)=>{const files=[...e.target.files];const added=files.map((f,i)=>({id:'local-'+Date.now()+'-'+i,title:f.name.replace(/\.[^.]+$/,''),artist:'On this device',album:'Local files',duration:'—',color:['violet','orange','blue','pink'][i%4],cover:'🎵',url:URL.createObjectURL(f)}));setTracks(t=>[...added,...t]);setPage('Library');e.target.value='';};
  const createPlaylist=()=>{if(!newName.trim())return;setPlaylists(p=>[{id:'p'+Date.now(),name:newName.trim(),tracks:[]},...p]);setNewName('');setShowCreate(false);setPage('Library');};
  const addToPlaylist=(pid,tid)=>setPlaylists(ps=>ps.map(p=>p.id===pid?{...p,tracks:p.tracks.includes(tid)?p.tracks:[...p.tracks,tid]}:p));
- const importSpotify=()=>{if(!/^https?:\/\/(open\.)?spotify\.com\/(playlist|track)\//i.test(spotifyUrl.trim())){setImportMsg('Please paste a valid Spotify playlist link.');return;}setImportMsg('Link received! To import the actual track list, connect a Spotify Developer app (OAuth) in the project settings. This demo keeps the link ready but does not access Spotify accounts yet.');};
+const importSpotify=async()=>{
+  const url=spotifyUrl.trim();
+
+  if(!/^https?:\/\/(open\.)?spotify\.com\/playlist\//i.test(url)){
+    setImportMsg('Please paste a valid Spotify playlist link.');
+    return;
+  }
+
+  try{
+    setImportMsg('Importing playlist...');
+    const imported=await importSpotifyPlaylist(url);
+
+    if(!imported.length){
+      setImportMsg('No tracks found in this playlist.');
+      return;
+    }
+
+    setTracks(prev=>{
+      const existing=new Set(prev.map(t=>t.id));
+      return [...prev,...imported.filter(t=>!existing.has(t.id))];
+    });
+
+    setPlaylists(prev=>[{
+      id:'sp'+Date.now(),
+      name:'Spotify Import',
+      tracks:imported.map(t=>t.id),
+      spotifyUrl:url
+    },...prev]);
+
+    setImportMsg(imported.length+' songs imported successfully! Audio is not downloaded.');
+  }catch(error){
+    setImportMsg(error.message||'Spotify import failed. Please try again.');
+  }
+};
  const next=()=>{if(!tracks.length)return;let i=tracks.findIndex(t=>t.id===current?.id);let n=shuffle?Math.floor(Math.random()*tracks.length):(i+1)%tracks.length;play(tracks[n]);}; const prev=()=>{let i=tracks.findIndex(t=>t.id===current?.id);play(tracks[(i-1+tracks.length)%tracks.length]);};
  useEffect(()=>{if(audio.current){audio.current.volume=volume/100;if(current?.url){audio.current.src=current.url;if(playing)audio.current.play().catch(()=>setPlaying(false));}}},[current,volume]);
  const trackRow=(t,i)=> <div className={'track '+(current?.id===t.id?'selected':'')} key={t.id} onDoubleClick={()=>play(t)}><div className={'cover small '+t.color} onClick={()=>play(t)}>{t.cover||'🎵'}</div><div className="track-info" onClick={()=>play(t)}><b>{t.title}</b><span>{t.artist}</span></div><button className={'icon-btn like '+(likes.includes(t.id)?'liked':'')} onClick={()=>toggleLike(t.id)}><Heart size={17} fill={likes.includes(t.id)?'currentColor':'none'}/></button><span className="duration">{t.duration}</span><button className="icon-btn" onClick={()=>setActivePlaylist(t.id)}><MoreHorizontal size={19}/></button></div>;
